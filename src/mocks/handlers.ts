@@ -1,4 +1,5 @@
-import { rest, RestRequest, ResponseComposition, RestContext } from 'msw';
+import { rest } from 'msw';
+import type { RestRequest, RestContext } from 'msw';
 
 let leaveRequests = [
   { id: 1, staffId: 101, status: 'Pending', days: 3 },
@@ -12,7 +13,7 @@ const users = {
 };
 
 export const handlers = [
-  rest.post('/api/login', async (req:RestRequest, res:ResponseComposition, ctx:RestContext) => {
+  rest.post('/api/login', async (req: RestRequest, res, ctx: RestContext) => {
     const { username } = await req.json();
     const user = users[username as keyof typeof users];
     return user
@@ -20,27 +21,19 @@ export const handlers = [
       : res(ctx.status(401), ctx.json({ error: 'Invalid credentials' }));
   }),
 
-  rest.post('/api/login', async (req:RestRequest, res:ResponseComposition, ctx:RestContext) => {
-    const { username } = await req.json();
-    const user = users[username as keyof typeof users];
-    return user
-      ? res(ctx.status(200), ctx.json({ token: user.token }))
-      : res(ctx.status(401), ctx.json({ error: 'Invalid credentials' }));
-  }),
-
-  rest.get('/api/me', (req:RestRequest, res:ResponseComposition, ctx:RestContext) => {
-    const token = req.headers.get('Authorisation')?.split(' ')[1];
+  rest.get('/api/me', (req: RestRequest, res, ctx: RestContext) => {
+    const token = req.headers.get('Authorization')?.split(' ')[1];
     const user = Object.values(users).find(u => u.token === token);
     return user
       ? res(ctx.status(200), ctx.json(user))
-      : res(ctx.status(403), ctx.json({ error: 'Unauthorised' }));
+      : res(ctx.status(403), ctx.json({ error: 'Unauthorized' }));
   }),
 
-  rest.get('/api/leave-requests', (req:RestRequest, res:ResponseComposition, ctx:RestContext) => {
+  rest.get('/api/leave-requests', (req: RestRequest, res, ctx: RestContext) => {
     return res(ctx.status(200), ctx.json(leaveRequests));
   }),
 
-  rest.post('/api/leave-request', async (req:RestRequest, res:ResponseComposition, ctx:RestContext) => {
+  rest.post('/api/leave-request', async (req: RestRequest, res, ctx: RestContext) => {
     const newRequest = await req.json();
     newRequest.id = leaveRequests.length + 1;
     newRequest.status = 'Pending';
@@ -48,4 +41,5 @@ export const handlers = [
     return res(ctx.status(201), ctx.json(newRequest));
   }),
 ];
-export{};
+
+export {};
