@@ -14,14 +14,17 @@ const Login = ({ onLogin }: Props) => {
     setError('');
 
     try {
-      const res = await axios.post('/api/login', { username });
-      localStorage.setItem('token', res.data.token);
+      console.log("Sending login request for:", username);
+      const res = await axios.post('/api/login', { username }, { transformResponse: r => r });
+      console.log("Login response:", res.data);
+
+      localStorage.setItem('token', res.data.token); 
       onLogin(); 
-    } catch {
+    } catch (err) {
+      console.error("Login error:", err);
       setError('Login failed. Please select a valid user.');
     }
   };
-console.log('Login component rendered with username:', username);
 
   return (
     <div style={{ maxWidth: '400px', margin: 'auto', padding: '1rem' }}>
@@ -51,4 +54,3 @@ console.log('Login component rendered with username:', username);
 };
 
 export default Login;
-export{};

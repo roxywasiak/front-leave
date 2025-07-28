@@ -13,13 +13,30 @@ const users = {
 };
 
 export const handlers = [
-  rest.post('/api/login', async (req: RestRequest, res, ctx: RestContext) => {
-    const { username } = await req.json();
-    const user = users[username as keyof typeof users];
-    return user
-      ? res(ctx.status(200), ctx.json({ token: user.token }))
-      : res(ctx.status(401), ctx.json({ error: 'Invalid credentials' }));
-  }),
+ rest.post('/api/login', async (req, res, ctx) => {
+  const { username } = await req.json();
+
+  const users = {
+    staff: { token: 'staff-token' },
+    manager: { token: 'manager-token' },
+    admin: { token: 'admin-token' },
+  };
+
+  const user = users[username as keyof typeof users];
+
+  if (!user) {
+    return res(
+      ctx.status(401),
+      ctx.json({ error: 'Invalid credentials' })
+    );
+  }
+
+  return res(
+    ctx.status(200),
+    ctx.delay(100), 
+    ctx.json({ token: user.token })
+  );
+}),
 
   rest.get('/api/me', (req: RestRequest, res, ctx: RestContext) => {
     const token = req.headers.get('Authorization')?.split(' ')[1];
