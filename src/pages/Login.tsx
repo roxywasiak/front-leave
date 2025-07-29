@@ -10,21 +10,23 @@ const Login = ({ onLogin }: Props) => {
   const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
+  e.preventDefault();
+  setError('');
 
-    try {
-      console.log("Sending login request for:", username);
-      const res = await axios.post('/api/login', { username }, { transformResponse: r => r });
-      console.log("Login response:", res.data);
+  try {
+    console.log("Sending login request for:", username);
+    const res = await axios.post('/api/login', { username }, { transformResponse: r => r });
+    console.log("Login response:", res);
+    const data = JSON.parse(res.data);
+    console.log("Login response:", data);
 
-      localStorage.setItem('token', res.data.token); 
-      onLogin(); 
-    } catch (err) {
-      console.error("Login error:", err);
-      setError('Login failed. Please select a valid user.');
-    }
-  };
+    localStorage.setItem('token', data.token); 
+    onLogin(); 
+  } catch (err) {
+    console.error("Login error:", err);
+    setError('Login failed. Please select a valid user.');
+  }
+};
 
   return (
     <div style={{ maxWidth: '400px', margin: 'auto', padding: '1rem' }}>
