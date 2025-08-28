@@ -1,5 +1,4 @@
 import { rest } from 'msw';
-import type { RestRequest, RestContext } from 'msw';
 
 let leaveRequests = [
   { id: 1, staffId: 101, status: 'Pending', days: 3 },
@@ -13,49 +12,57 @@ const users = {
 };
 
 export const handlers = [
- rest.post('/api/login', async (req, res, ctx) => {
-  const { username } = await req.json();
+ 
+  rest.post('/api/login', async (req, res, ctx) => {
+    try {
+      const body = await req.json();
+      const username = body.username;
 
-  const users = {
-    staff: { token: 'staff-token' },
-    manager: { token: 'manager-token' },
-    admin: { token: 'admin-token' },
-  };
+      const user = users[username as keyof typeof users];
 
-  const user = users[username as keyof typeof users];
+      if (!user) {
+        return res(ctx.status(401), ctx.json({ error: 'Invalid credentials' }));
+      }
 
-  if (!user) {
-    return res(
-      ctx.status(401),
-      ctx.json({ error: 'Invalid credentials' })
-    );
-  }
-
-  return res(
-    ctx.status(200),
-    ctx.delay(100), 
-    ctx.json({ token: user.token })
-  );
-}),
-
-  rest.get('/api/me', (req: RestRequest, res, ctx: RestContext) => {
-    const token = req.headers.get('Authorization')?.split(' ')[1];
-    const user = Object.values(users).find(u => u.token === token);
-    return user
-      ? res(ctx.status(200), ctx.json(user))
-      : res(ctx.status(403), ctx.json({ error: 'Unauthorized' }));
+      return res(
+        ctx.status(200),
+        ctx.delay(200),
+        ctx.json({ token: user.token }) 
+      );
+    } catch (err) {
+      console.error('Login handler error:', err);
+      return res(ctx.status(500), ctx.json({ error: 'Handler failed' }));
+    }
   }),
 
-  rest.get('/api/leave-requests', (req: RestRequest, res, ctx: RestContext) => {
+  rest.get('/api/me', (req, res, ctx) => {
+    const token = req.headers.get('Authorization')?.split(' ')[1];
+    const user = Object.values(users).find((u) => u.token === token);
+
+    if (!user) {
+      return res(ctx.status(403), ctx.json({ error: 'Unauthorized' }));
+    }
+
+    return res(ctx.status(200), ctx.json(user));
+  }),
+
+
+  rest.get('/api/leave-requests', (req, res, ctx) => {
     return res(ctx.status(200), ctx.json(leaveRequests));
   }),
 
-  rest.post('/api/leave-request', async (req: RestRequest, res, ctx: RestContext) => {
-    const newRequest = await req.json();
-    newRequest.id = leaveRequests.length + 1;
-    newRequest.status = 'Pending';
-    leaveRequests.push(newRequest);
-    return res(ctx.status(201), ctx.json(newRequest));
+  
+  rest.post('/api/leave-request', async (req, res, ctx) => {
+    try {
+      const newRequest = await req.json();
+      newRequest.id = leaveRequests.length + 1;
+      newRequest.status = 'Pending';
+      leaveRequests.push(newRequest);
+
+      return res(ctx.status(201), ctx.json(newRequest));
+    } catch (error) {
+      return res(ctx.status(500), ctx.json({ error: 'Failed to create leave request' }));
+    }
   }),
 ];
 

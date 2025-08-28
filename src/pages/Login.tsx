@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 
 type Props = {
@@ -10,46 +10,56 @@ const Login = ({ onLogin }: Props) => {
   const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setError('');
+    e.preventDefault();
+    setError('');
 
-  try {
-    console.log("Sending login request for:", username);
-    const res = await axios.post('/api/login', { username }, { transformResponse: r => r });
-    console.log("Login response:", res);
-    const data = JSON.parse(res.data);
-    console.log("Login response:", data);
+    try {
+      console.log('Sending login request for:', username);
 
-    localStorage.setItem('token', data.token); 
-    onLogin(); 
-  } catch (err) {
-    console.error("Login error:", err);
-    setError('Login failed. Please select a valid user.');
-  }
-};
+      const res = await axios.post('/api/login', { username });
+
+      console.log('Login response:', res.data);
+
+      localStorage.setItem('token', res.data.token);
+      onLogin();
+    } catch (err: any) {
+      console.error('Login error:', err.response?.data || err.message);
+      setError('Login failed. Please select a valid user.');
+    }
+  };
 
   return (
-    <div style={{ maxWidth: '400px', margin: 'auto', padding: '1rem' }}>
-      <h2>Login</h2>
-      <form onSubmit={handleSubmit}>
-        <label htmlFor="user">Select Role:</label>
+    <div style={{
+      display: 'flex',
+      height: '100vh',
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: '#f7f7f7',
+    }}>
+      <form onSubmit={handleSubmit} style={{
+        padding: '2rem',
+        background: 'white',
+        borderRadius: '8px',
+        boxShadow: '0 0 10px rgba(0,0,0,0.1)',
+        width: '300px',
+        textAlign: 'center',
+      }}>
+        <h2>Login</h2>
         <select
-          id="user"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           required
+          style={{ width: '100%', padding: '0.5rem', marginBottom: '1rem' }}
         >
-          <option value="">-- Choose a user --</option>
+          <option value="">-- Select user --</option>
           <option value="staff">Staff</option>
           <option value="manager">Manager</option>
           <option value="admin">Admin</option>
         </select>
-
-        <button type="submit" style={{ display: 'block', marginTop: '1rem' }}>
+        <button type="submit" style={{ padding: '0.5rem 1rem' }}>
           Login
         </button>
-
-        {error && <p style={{ color: 'red' }}>{error}</p>}
+        {error && <p style={{ color: 'red', marginTop: '1rem' }}>{error}</p>}
       </form>
     </div>
   );
