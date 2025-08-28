@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Login from './pages/Login';
 import LeaveRequests from './pages/LeaveRequests';
+import NewLeaveRequest from './pages/NewLeaveRequest';
 
 function App() {
   const [user, setUser] = useState<any>(null);
@@ -29,6 +30,7 @@ function App() {
     <div>
       <h1>Welcome, {user.name} ({user.role})</h1>
       <LeaveRequests/>
+      <NewLeaveRequest/>
     </div>
   );
 }
