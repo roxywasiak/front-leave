@@ -23,26 +23,23 @@ const LeaveRequests = () => {
     .catch(() => setError('Failed to load leave requests.'));
   }, []);
 
-  return (
-    <div style={{ padding: '1rem' }}>
-      <h2>Leave Requests</h2>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      <table>
-        <thead>
+ return (
+    <div className="mt-8">
+      <h2 className="text-xl font-semibold mb-4">Leave Requests</h2>
+      <table className="min-w-full border">
+        <thead className="bg-gray-200 text-left">
           <tr>
-            <th>ID</th>
-            <th>Staff ID</th>
-            <th>Status</th>
-            <th>Days</th>
+            <th className="py-2 px-4 border">ID</th>
+            <th className="py-2 px-4 border">Days</th>
+            <th className="py-2 px-4 border">Status</th>
           </tr>
         </thead>
         <tbody>
           {leaveRequests.map((req) => (
-            <tr key={req.id}>
-              <td>{req.id}</td>
-              <td>{req.staffId}</td>
-              <td>{req.status}</td>
-              <td>{req.days}</td>
+            <tr key={req.id} className="bg-white hover:bg-gray-100">
+              <td className="py-2 px-4 border">{req.id}</td>
+              <td className="py-2 px-4 border">{req.days}</td>
+              <td className="py-2 px-4 border">{req.status}</td>
             </tr>
           ))}
         </tbody>
