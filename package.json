@@ -51,9 +51,6 @@
   },
   "msw": {
     "workerDirectory": "public"
-  },
-  "jest": {
-  "setupFilesAfterEnv": ["<rootDir>/src/setupTests.ts"]
-}
+  }
 
 }
