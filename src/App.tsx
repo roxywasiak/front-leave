@@ -26,7 +26,7 @@ function App() {
     return <Login onLogin={() => window.location.reload()} />;
   }
 
-  return (
+return (
   <div className="min-h-screen bg-gray-100 p-6">
     <div className="max-w-4xl mx-auto bg-white shadow-md rounded p-6">
       <div className="flex justify-between items-center mb-4">
@@ -64,5 +64,5 @@ function App() {
     </div>
   </div>
 );
-};
+}
 export default App;
