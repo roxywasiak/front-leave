@@ -1,39 +1,59 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 
 const NewLeaveRequest = () => {
   const [days, setDays] = useState('');
   const [message, setMessage] = useState('');
+  const [user, setUser] = useState<{ id: number; role: string } | null>(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    axios
+      .get('/api/me', {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((res) => setUser(res.data))
+      .catch(() => setUser(null));
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-try {
-  const token = localStorage.getItem('token');
-  if (!token) {
-    setMessage('User not logged in.');
-    return;
-  }
-
-  const res = await axios.post(
-    '/api/leave-request',
-    { staffId: 101, days: parseInt(days, 10) }, 
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
+    if (!user) {
+      setMessage('User not logged in.');
+      return;
     }
-  );
 
-  setMessage(`Leave request submitted (ID: ${res.data.id})`);
-  setDays(''); 
-} catch (err) {
-  console.error(err);
-  setMessage('Failed to submit leave request.');
-}
+    try {
+      const token = localStorage.getItem('token');
+      const res = await axios.post(
+        '/api/leave-request',
+        {
+          staffId: user.id,
+          days: parseInt(days, 10),
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      setMessage(`Leave request submitted (ID: ${res.data.id})`);
+      setDays('');
+    } catch (err) {
+      console.error(err);
+      setMessage('Failed to submit leave request.');
+    }
   };
 
-   return (
+  if (!user || user.role !== 'staff') {
+    return null; 
+  }
+
+  return (
     <div className="mt-8">
       <h3 className="text-xl font-semibold mb-4">Submit New Leave Request</h3>
       <form onSubmit={handleSubmit} className="flex items-center gap-4">
@@ -58,5 +78,4 @@ try {
   );
 };
 
- 
 export default NewLeaveRequest;
