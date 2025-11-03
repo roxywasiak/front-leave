@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
+import { mockApi } from '../services/mockApi';
 
 type LeaveRequest = {
   id: number;
@@ -23,19 +23,15 @@ const LeaveRequests = () => {
     const token = localStorage.getItem('token');
     if (!token) return;
 
-    //user
-    axios.get('/api/me', {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-    .then(res => setUser(res.data))
-    .catch(() => setError('Failed to fetch user info.'));
-
-    //leave requests
-    axios.get('/api/leave-requests', {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-    .then((res) => setLeaveRequests(res.data))
-    .catch(() => setError('Failed to load leave requests.'));
+    try {
+      const userData = mockApi.getMe(token);
+      setUser(userData);
+      
+      const requests = mockApi.getLeaveRequests();
+      setLeaveRequests(requests);
+    } catch {
+      setError('Failed to load data.');
+    }
   }, []);
 
   if (error) return <p className="text-red-500">{error}</p>;
@@ -61,6 +57,7 @@ const LeaveRequests = () => {
           {visibleRequests.map((req) => (
             <tr key={req.id} className="bg-white hover:bg-gray-100">
               <td className="py-2 px-4 border">{req.id}</td>
+              <td className="py-2 px-4 border">{req.staffId}</td>
               <td className="py-2 px-4 border">{req.days}</td>
               <td className="py-2 px-4 border">{req.status}</td>
             </tr>

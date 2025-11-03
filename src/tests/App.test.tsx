@@ -28,6 +28,7 @@ describe('App Integration Test', () => {
     // Wait for dashboard to load
     await screen.findByText(/Welcome, Alice/i);
 
+
     const input = screen.getByPlaceholderText(/number of days/i);
     const button = screen.getByRole('button', { name: /submit/i });
 
@@ -50,7 +51,7 @@ describe('App Integration Test', () => {
 
   test('admin sees admin dashboard message only', async () => {
     localStorage.setItem('token', 'admin-token');
-    render(<App />);
+    render(<App />)
 
     await screen.findByText(/Admin Dashboard/i);
 

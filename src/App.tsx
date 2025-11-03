@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
+import { mockApi } from './services/mockApi';
 import Login from './pages/Login';
 import LeaveRequests from './pages/LeaveRequests';
 import NewLeaveRequest from './pages/NewLeaveRequest';
@@ -11,15 +11,13 @@ function App() {
     const token = localStorage.getItem('token');
     if (!token) return;
 
-    axios
-      .get('/api/me', {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      .then((res) => setUser(res.data))
-      .catch(() => {
-        localStorage.removeItem('token');
-        setUser(null);
-      });
+    try {
+      const userData = mockApi.getMe(token);
+      setUser(userData);
+    } catch {
+      localStorage.removeItem('token');
+      setUser(null);
+    }
   }, []);
 
   if (!user) {

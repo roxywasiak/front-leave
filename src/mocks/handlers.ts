@@ -12,27 +12,17 @@ const users = {
 };
 
 export const handlers = [
- 
-  rest.post('/api/login', async (req, res, ctx) => {
-    try {
-      const body = await req.json();
-      const username = body.username;
-
-      const user = users[username as keyof typeof users];
-
-      if (!user) {
-        return res(ctx.status(401), ctx.json({ error: 'Invalid credentials' }));
-      }
-
-      return res(
-        ctx.status(200),
-        ctx.delay(200),
-        ctx.json({ token: user.token }) 
-      );
-    } catch (err) {
-      console.error('Login handler error:', err);
-      return res(ctx.status(500), ctx.json({ error: 'Handler failed' }));
+  rest.post('/api/login', (req, res, ctx) => {
+    const username = (req.body as any)?.username;
+    console.log('Login attempt for user:', username);
+    const user = users[username as keyof typeof users];
+    console.log('User found:', user);
+    
+    if (!user) {
+      return res(ctx.status(401), ctx.json({ error: 'Invalid credentials' }));
     }
+
+    return res(ctx.json({ token: user.token }));
   }),
 
   rest.get('/api/me', (req, res, ctx) => {
@@ -43,27 +33,23 @@ export const handlers = [
       return res(ctx.status(403), ctx.json({ error: 'Unauthorized' }));
     }
 
-    return res(ctx.status(200), ctx.json(user));
+    return res(ctx.json(user));
   }),
-
 
   rest.get('/api/leave-requests', (req, res, ctx) => {
-    return res(ctx.status(200), ctx.json(leaveRequests));
+    return res(ctx.json(leaveRequests));
   }),
 
-  
-  rest.post('/api/leave-request', async (req, res, ctx) => {
-    try {
-      const newRequest = await req.json();
-      newRequest.id = leaveRequests.length + 1;
-      newRequest.status = 'Pending';
-      leaveRequests.push(newRequest);
+  rest.post('/api/leave-request', (req, res, ctx) => {
+    const newRequest = req.body as any;
+    newRequest.id = leaveRequests.length + 1;
+    newRequest.status = 'Pending';
+    leaveRequests.push(newRequest);
 
-      return res(ctx.status(201), ctx.json(newRequest));
-    } catch (error) {
-      return res(ctx.status(500), ctx.json({ error: 'Failed to create leave request' }));
-    }
+    return res(ctx.status(201), ctx.json(newRequest));
   }),
 ];
 
 export {};
+
+

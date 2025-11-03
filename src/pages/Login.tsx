@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import { mockApi } from '../services/mockApi';
 
 type Props = {
   onLogin: () => void;
@@ -14,16 +14,11 @@ const Login = ({ onLogin }: Props) => {
     setError('');
 
     try {
-      console.log('Sending login request for:', username);
-
-      const res = await axios.post('/api/login', { username });
-
-      console.log('Login response:', res.data);
-
-      localStorage.setItem('token', res.data.token);
+      const { token } = mockApi.login(username);
+      localStorage.setItem('token', token);
       onLogin();
     } catch (err: any) {
-      console.error('Login error:', err.response?.data || err.message);
+      console.error('Login request failed:', err);
       setError('Login failed. Please select a valid user.');
     }
   };

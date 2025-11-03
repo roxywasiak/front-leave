@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
+import { mockApi } from '../services/mockApi';
 
 const NewLeaveRequest = () => {
   const [days, setDays] = useState('');
@@ -10,12 +10,12 @@ const NewLeaveRequest = () => {
     const token = localStorage.getItem('token');
     if (!token) return;
 
-    axios
-      .get('/api/me', {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      .then((res) => setUser(res.data))
-      .catch(() => setUser(null));
+    try {
+      const userData = mockApi.getMe(token);
+      setUser(userData);
+    } catch {
+      setUser(null);
+    }
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -27,21 +27,11 @@ const NewLeaveRequest = () => {
 
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.post(
-        '/api/leave-request',
-        {
-          staffId: user.id,
-          days: parseInt(days, 10),
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-
-      setMessage(`Leave request submitted (ID: ${res.data.id})`);
+      const data = mockApi.createLeaveRequest({
+        staffId: user.id,
+        days: parseInt(days, 10),
+      });
+      setMessage(`Leave request submitted (ID: ${data.id})`);
       setDays('');
     } catch (err) {
       console.error(err);
